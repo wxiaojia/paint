@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>canvas</title>
+	<style>
+		canvas{
+			border:1px dashed black;
+		}
+		.selected{
+			background: red;
+		}
+		#savedCopyContainer{
+			display: none;
+		}
+	</style>
+</head>
+<body>
+	<div class="Toolbar">
+		-Pen Color-<br/>
+		<img id="redColor" src="QQ/1.gif" alt="Red Pen" onclick="changeColor('red',this)">红笔
+		<img id="greenColor" src="QQ/2.gif" alt="Green Pen" onclick="changeColor('green',this)">绿笔
+		<img id="blueColor" src="QQ/3.gif" alt="Blue Pen" onclick="changeColor('blue',this)">蓝笔	
+		<img id="thin" src="QQ/4.gif" alt="Thin Pen" onclick="changeThickness('10',this)">细笔	
+		<img id="middle" src="QQ/5.gif" alt="Middle Pen" onclick="changeThickness('20',this)">中笔	
+		<img id="heavy" src="QQ/6.gif" alt="Heavy Pen" onclick="changeThickness('30',this)">粗笔		
+		<img id="heavy" src="QQ/7.gif" alt="clear" onclick="clearCanvas2()">清空		
+		<button>保存方法1(浏览器中直接打开)</button>
+		<button>保存方法2(在下方显示出来)</button><br/>
+		<img id="line" src="QQ/8.gif" alt="line" onclick="straightLine()">直线	
+		<img id="restore" src="QQ/9.gif" alt="restore" onclick="res()">撤回
+
+	</div>
+	<canvas id="drawingCanvas2" width="1000" height="500"></canvas>
+	<div id="savedCopyContainer">
+		<img id="savedImageCopy" src="">	
+	</div>	
+	<script>
+		var doc=document;
+		// (beginX,beginY,endX,endY)
+		var b=[];
+		var o;
+		var i=0;
+		var canvas2=doc.getElementById("drawingCanvas2");
+		var content2=canvas2.getContext("2d");
+  		var lastImg=null;
+		canvas2.onmousedown=function (ev) {
+			//直线
+			var oldX,oldY,newX,newY;
+			o=new Object();
+	       	lastImg = content2.getImageData(0,0,canvas2.width,canvas2.height);
+	        //每次 画之前。应该开启新的路径
+	        content2.beginPath();
+	        //鼠标按下的位置
+	        oldX = ev.offsetX;
+	        oldY = ev.offsetY;
+	       	o["oldX"]=oldX;
+	       	o["oldY"]=oldY;	    
+	        //让画笔移到鼠标按下的位置
+	        content2.moveTo(oldX,oldY);
+	 
+	        document.onmousemove=function (ev) {
+	            //鼠标所在的位置
+	            newX=ev.offsetX
+	            newY=ev.offsetY
+	            o["newX"]=newX;
+	            o["newY"]=newY;
+	        	// a1.push(ev.offsetX,ev.offsetY);
+	            content2.lineTo(ev.offsetX,ev.offsetY);
+	            content2.stroke();    
+	        };
+	        document.onmouseup=function () {
+	            console.log("onmouseup");
+	            document.onmousemove=null;
+	            document.onmouseup =null;
+	            res();
+	            content2.beginPath();
+	            content2.moveTo(oldX,oldY);
+	            content2.lineTo(newX,newY);
+	            content2.stroke();
+	        }
+	        b.push([i++,o]);
+	        console.log(b);
+   	 	};
+		function res(){
+			content2.putImageData(lastImg,  0,  0);
+
+		}
+		
+		function clearCanvas2(){
+			content2.clearRect(0,0,canvas2.width,canvas2.height);
+		}
+
+		// 保存
+		var buttons=doc.getElementsByTagName('Button');
+		buttons[0].onclick=function(){
+			//将当前窗口置换成该URL，回去后自动刷新canvas页面
+			// window.location=canvas2.toDataURL();
+			//新建窗口打开页面：
+			window.open(canvas2.toDataURL());
+		}
+		buttons[1].onclick=function(){
+			//找到img元素
+			var imageCopy=doc.getElementById("savedImageCopy");
+			//在图像中显示画布数据
+			imageCopy.src=canvas2.toDataURL();
+			//显示包含img元素的div,以便将图像显示出来
+			var imageContainer=doc.getElementById("savedCopyContainer");
+			imageContainer.style.display="block";
+		}
+		
+	</script>
+</body>
+</html>
